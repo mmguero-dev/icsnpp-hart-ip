@@ -42,7 +42,7 @@ type ReadUniqueIdentifierResponse = unit (parentLinkId : string) {
                                                                IEEE_802_15_4_DSSS_O_QPSK_MODULATION     : 3 &convert=cast<bool>($$);
                                                                PROTOCOL_BRIDGE_DEVICE                   : 2 &convert=cast<bool>($$);
                                                                EEPROM_CONTROL                           : 1 &convert=cast<bool>($$);
-                                                               MUTLI_SENSOR_FIELD_DEVICE                : 0 &convert=cast<bool>($$);
+                                                               MULTI_SENSOR_FIELD_DEVICE                : 0 &convert=cast<bool>($$);
                                                            };
     var deviceID                                         : uint64;
                                                          : bytes &size=3 {
@@ -371,7 +371,7 @@ type ReadUniqueIdentifierTagResponse = unit (parentLinkId : string) {
                                                                IEEE_802_15_4_DSSS_O_QPSK_MODULATION     : 3 &convert=cast<bool>($$);
                                                                PROTOCOL_BRIDGE_DEVICE                   : 2 &convert=cast<bool>($$);
                                                                EEPROM_CONTROL                           : 1 &convert=cast<bool>($$);
-                                                               MUTLI_SENSOR_FIELD_DEVICE                : 0 &convert=cast<bool>($$);
+                                                               MULTI_SENSOR_FIELD_DEVICE                : 0 &convert=cast<bool>($$);
                                                            };
     var deviceID                                         : uint64;
                                                          : bytes &size=3 {
@@ -606,7 +606,7 @@ type ReadUniqueIdentifierLongTagResponse = unit (parentLinkId : string) {
                                                                IEEE_802_15_4_DSSS_O_QPSK_MODULATION     : 3 &convert=cast<bool>($$);
                                                                PROTOCOL_BRIDGE_DEVICE                   : 2 &convert=cast<bool>($$);
                                                                EEPROM_CONTROL                           : 1 &convert=cast<bool>($$);
-                                                               MUTLI_SENSOR_FIELD_DEVICE                : 0 &convert=cast<bool>($$);
+                                                               MULTI_SENSOR_FIELD_DEVICE                : 0 &convert=cast<bool>($$);
                                                            };
     var deviceID                                         : uint64;
                                                          : bytes &size=3 {
@@ -716,8 +716,8 @@ type ReadAdditionalDeviceStatusContents = unit (byteCount : uint8) {
                                            UNDEFINED_BITS               : 5..7;
                                            RADIO_FAILURE                : 4 &convert=cast<bool>($$);
                                            BLOCK_TRANSFER_PENDING       : 3 &convert=cast<bool>($$);
-                                           BANDWITH_ALLOCATION_PENDING  : 2 &convert=cast<bool>($$);
-                                           RESEREVED                    : 1 &convert=cast<bool>($$);
+                                           BANDWIDTH_ALLOCATION_PENDING  : 2 &convert=cast<bool>($$);
+                                           RESERVED                    : 1 &convert=cast<bool>($$);
                                            CAPACITY_DENIED              : 0 &convert=cast<bool>($$);
                                        } if (byteCount >= 13);
     # refer to Common Table 28
