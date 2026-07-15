@@ -22,37 +22,38 @@ namespace HART_IP_CONVERSION
         if(data.size() < 3)
         {
             printf("[error] Date Type Improper Byte Length (%li), must be 3\n", (long) data.size());
-            return "";
+            return hilti::rt::String();
         }
 
         const char *char_ptr = (const char *) data.data();
-	
+
         unsigned char day = char_ptr[0];
         unsigned char month = char_ptr[1];
         unsigned char shortYear = char_ptr[2];
         unsigned int longYear = 1900 + shortYear;
 
-	// Month name lookup
-	// Lines from here to end of function are additions
-	// for converting to Month Day, Year format
+    // Month name lookup
+    // Lines from here to end of function are additions
+    // for converting to Month Day, Year format
     // Default logging as Month (string) Day, Year
-    	static const hilti::rt::String months[] = {
-        	"", "January", "February", "March", "April", "May", "June",
-        	"July", "August", "September", "October", "November", "December"
-    	};
+        static const std::string months[] = {
+            "", "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        };
 
-	hilti::rt::String monthName = "";
-	if(month >= 1 && month <= 12) {
-		monthName = months[month];
-	}
-	else {
-		monthName = "InvalidMonth";
-	}
+    std::string monthName;
+    if(month >= 1 && month <= 12) {
+        monthName = months[month];
+    }
+    else {
+        monthName = "InvalidMonth";
+    }
 
-	return monthName + " " + std::to_string(day) + ", " + std::to_string(longYear);
+    std::string result = monthName + " " + std::to_string(day) + ", " + std::to_string(longYear);
+    return hilti::rt::String(std::string_view(result));
 
     // Remove the comments on lines 58-60 and comment out lines 43-56 to log as Month-Day-Year in integers
-	//return std::to_string(month) + "-" +
+    //return std::to_string(month) + "-" +
         //       std::to_string(day) + "-" +
         //       std::to_string(longYear);
     }
@@ -64,7 +65,7 @@ namespace HART_IP_CONVERSION
         if(data.size() < 4)
         {
             printf("[error] Time Type Improper Byte Length (%li), must be 4\n", (long) data.size());
-            return "";
+            return hilti::rt::String();
         }
         const char *char_ptr = (const char *) data.data();
         unsigned int time = 0;
@@ -81,8 +82,8 @@ namespace HART_IP_CONVERSION
         unsigned int minutesPart = totalMinutes % MINUTES_PER_HOUR;
         unsigned int hoursPart = totalMinutes / MINUTES_PER_HOUR;
 
-        hilti::rt::String returnString = "";
-        hilti::rt::String tempString = "";
+        std::string returnString;
+        std::string tempString;
         if(0 < secondsPart || 0.0 < fractionPart)
         {
             returnString = std::to_string(fractionPart + secondsPart) +
@@ -91,7 +92,7 @@ namespace HART_IP_CONVERSION
         if(0 < minutesPart)
         {
             tempString = std::to_string(minutesPart) + " minutes";
-            if("" != returnString)
+            if(!returnString.empty())
             {
                 tempString += ", ";
             }
@@ -100,14 +101,14 @@ namespace HART_IP_CONVERSION
         if(0 < hoursPart)
         {
             tempString = std::to_string(hoursPart) + " hours";
-            if("" != returnString)
+            if(!returnString.empty())
             {
                 tempString += ", ";
             }
             returnString = tempString + returnString;
         }
 
-        return returnString;
+        return hilti::rt::String(std::string_view(returnString));
     }
 
     hilti::rt::String packedConversion(const hilti::rt::Bytes &data)    {
@@ -117,12 +118,12 @@ namespace HART_IP_CONVERSION
         const int NEEDED_BITS = BITS_PER_BYTE / OUTPUT_CHARS * INPUT_CHARS;
         // MAP from TS20099 (v11.0) 5.1.1, Table 1
         // Note: there are other ways to do this, this just seems easy for now.
-        const hilti::rt::String MAP = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_ !\"#$%&'()*+,-./0123456789:;<=>?";
-            
+        const std::string MAP = "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_ !\"#$%&'()*+,-./0123456789:;<=>?";
+
         if(0 != data.size() % INPUT_CHARS)
         {
             printf("[error] Packed Type Improper Byte Length (%li), must be divisible by %i\n", (long) data.size(), INPUT_CHARS);
-            return "";
+            return hilti::rt::String();
         }
         std::string outputString;
 
@@ -153,7 +154,7 @@ namespace HART_IP_CONVERSION
                     else
                     {
                         printf("[error] Packed Type Improper Character Encoding\n");
-                        return "";
+                        return hilti::rt::String();
                     }
                     // Reset things in preparation for the next set of NEEDED_BITS
                     processedBits = 0;
@@ -166,4 +167,3 @@ namespace HART_IP_CONVERSION
     }
 
 }
-

@@ -9,7 +9,7 @@
 namespace HART_IP_GENERATEID
 {
     #define ID_LEN 9
-    
+
     hilti::rt::String generateId() {
         std::stringstream ss;
         for (auto i = 0; i < ID_LEN; i++) {
@@ -25,7 +25,7 @@ namespace HART_IP_GENERATEID
             auto hex = hexstream.str();
             ss << (hex.length() < 2 ? '0' + hex : hex);
         }
-        return ss.str();
+        std::string result = ss.str();
+        return hilti::rt::String(std::string_view(result));
     }
 }
-
