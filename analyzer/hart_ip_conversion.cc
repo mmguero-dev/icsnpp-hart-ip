@@ -8,18 +8,14 @@
 
 namespace HART_IP_CONVERSION
 {
-    hilti::rt::String latin1Conversion(const hilti::rt::Bytes &data)    {
-        hilti::rt::String returnValue;
+    hilti::rt::String latin1Conversion(const hilti::rt::Bytes &data) {
+        std::string returnValue;
+        returnValue.reserve(data.size());
         const char *char_ptr = (const char *) data.data();
-        for(std::size_t i = 0; i < data.size(); ++i)
-        {
-            //if(0 == char_ptr[i])
-            //{
-            //    break;
-            //}
+        for (std::size_t i = 0; i < data.size(); ++i) {
             returnValue += char_ptr[i];
         }
-        return returnValue;
+        return hilti::rt::String(std::string_view(returnValue));
     }
 
     hilti::rt::String dateConversion(const hilti::rt::Bytes &data)    {
@@ -128,7 +124,7 @@ namespace HART_IP_CONVERSION
             printf("[error] Packed Type Improper Byte Length (%li), must be divisible by %i\n", (long) data.size(), INPUT_CHARS);
             return "";
         }
-        hilti::rt::String outputString;
+        std::string outputString;
 
         unsigned char tempChar = 0;
         int processedBits = 0;
@@ -166,7 +162,7 @@ namespace HART_IP_CONVERSION
             }
         }
 
-        return outputString;
+        return hilti::rt::String(std::string_view(outputString));
     }
 
 }
