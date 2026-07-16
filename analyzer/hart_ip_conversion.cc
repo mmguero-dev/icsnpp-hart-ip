@@ -8,21 +8,31 @@
 
 namespace HART_IP_CONVERSION
 {
-    hilti::rt::String latin1Conversion(const hilti::rt::Bytes &data) {
+    // Spicy exports its version in `PROJECT_VERSION_NUMBER`.
+    // hilti::rt::String was introduced in HILTI 1.16 (Zeek 8.2.1); on
+    // earlier versions (e.g. Zeek 8.0.9 / HILTI 1.14.2) it doesn't exist,
+    // so fall back to std::string there.
+#if PROJECT_VERSION_NUMBER >= 11600
+    using SpicyString = hilti::rt::String;
+#else
+    using SpicyString = std::string;
+#endif
+
+    SpicyString latin1Conversion(const hilti::rt::Bytes &data) {
         std::string returnValue;
         returnValue.reserve(data.size());
         const char *char_ptr = (const char *) data.data();
         for (std::size_t i = 0; i < data.size(); ++i) {
             returnValue += char_ptr[i];
         }
-        return hilti::rt::String(std::string_view(returnValue));
+        return {returnValue};
     }
 
-    hilti::rt::String dateConversion(const hilti::rt::Bytes &data)    {
+    SpicyString dateConversion(const hilti::rt::Bytes &data)    {
         if(data.size() < 3)
         {
             printf("[error] Date Type Improper Byte Length (%li), must be 3\n", (long) data.size());
-            return hilti::rt::String();
+            return {};
         }
 
         const char *char_ptr = (const char *) data.data();
@@ -50,7 +60,7 @@ namespace HART_IP_CONVERSION
     }
 
     std::string result = monthName + " " + std::to_string(day) + ", " + std::to_string(longYear);
-    return hilti::rt::String(std::string_view(result));
+    return {result};
 
     // Remove the comments on lines 58-60 and comment out lines 43-56 to log as Month-Day-Year in integers
     //return std::to_string(month) + "-" +
@@ -58,14 +68,14 @@ namespace HART_IP_CONVERSION
         //       std::to_string(longYear);
     }
 
-    hilti::rt::String timeConversion(const hilti::rt::Bytes &data)    {
+    SpicyString timeConversion(const hilti::rt::Bytes &data)    {
         const unsigned int MILLISECOND_PARTS = 32;
         const unsigned int SECONDS_PER_MINUTE = 60;
         const unsigned int MINUTES_PER_HOUR = 60;
         if(data.size() < 4)
         {
             printf("[error] Time Type Improper Byte Length (%li), must be 4\n", (long) data.size());
-            return hilti::rt::String();
+            return {};
         }
         const char *char_ptr = (const char *) data.data();
         unsigned int time = 0;
@@ -108,10 +118,10 @@ namespace HART_IP_CONVERSION
             returnString = tempString + returnString;
         }
 
-        return hilti::rt::String(std::string_view(returnString));
+        return {returnString};
     }
 
-    hilti::rt::String packedConversion(const hilti::rt::Bytes &data)    {
+    SpicyString packedConversion(const hilti::rt::Bytes &data)    {
         const int INPUT_CHARS = 3;
         const int OUTPUT_CHARS = 4;
         const int BITS_PER_BYTE = 8;
@@ -123,7 +133,7 @@ namespace HART_IP_CONVERSION
         if(0 != data.size() % INPUT_CHARS)
         {
             printf("[error] Packed Type Improper Byte Length (%li), must be divisible by %i\n", (long) data.size(), INPUT_CHARS);
-            return hilti::rt::String();
+            return {};
         }
         std::string outputString;
 
@@ -154,7 +164,7 @@ namespace HART_IP_CONVERSION
                     else
                     {
                         printf("[error] Packed Type Improper Character Encoding\n");
-                        return hilti::rt::String();
+                        return {};
                     }
                     // Reset things in preparation for the next set of NEEDED_BITS
                     processedBits = 0;
@@ -163,7 +173,7 @@ namespace HART_IP_CONVERSION
             }
         }
 
-        return hilti::rt::String(std::string_view(outputString));
+        return {outputString};
     }
 
 }
