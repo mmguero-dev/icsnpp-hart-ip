@@ -55,6 +55,9 @@ const udp_ports = {
     5094/udp,
 };
 
+# Additional HART-IP ports supplied through env variable.
+global hartip_ports_str: string = getenv("ZEEK_HART_IP_PORTS");
+
 # Initialization Function
 event zeek_init() &priority=5 {
     # initialize logging streams for all hart_ip logs
@@ -85,6 +88,28 @@ event zeek_init() &priority=5 {
     $policy=log_policy_universal_commands_log]);
     Analyzer::register_for_ports(Analyzer::ANALYZER_SPICY_HART_IP_TCP, tcp_ports);
     Analyzer::register_for_ports(Analyzer::ANALYZER_SPICY_HART_IP_UDP, udp_ports);
+
+    if (hartip_ports_str != "") {
+        local hartip_ports = split_string(hartip_ports_str, /,/);
+        local hartip_ports_tcp: set[port] = {};
+        local hartip_ports_udp: set[port] = {};
+        for (hartip_port_idx in hartip_ports) {
+                local hartip_port = to_port(hartip_ports[hartip_port_idx]);
+                local hartip_prot = get_port_transport_proto(hartip_port);
+                if (hartip_prot == tcp) {
+                    add hartip_ports_tcp[hartip_port];
+                }
+                else if (hartip_prot == udp) {
+                    add hartip_ports_udp[hartip_port];
+                }
+            }
+        if (|hartip_ports_tcp| > 0) {
+            Analyzer::register_for_ports(Analyzer::ANALYZER_SPICY_HART_IP_TCP, hartip_ports_tcp);
+            }
+        if (|hartip_ports_udp| > 0) {
+            Analyzer::register_for_ports(Analyzer::ANALYZER_SPICY_HART_IP_UDP,hartip_ports_udp);
+            }
+        }
 }
 
 function emit_hart_ip_general_log(c: connection) {
@@ -121,5 +146,6 @@ function emit_hart_ip_universal_commands_log(c: connection) {
     Log::write(HART_IP::LOG_UNIVERSAL_COMMANDS_LOG, c$hart_ip_universal_commands_log);
     delete c$hart_ip_universal_commands_log;
 }
+
 
 
